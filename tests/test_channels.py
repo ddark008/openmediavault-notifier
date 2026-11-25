@@ -88,6 +88,23 @@ class HttpChannelTest(unittest.TestCase):
         self.assertEqual(payload["chat_id"], "-100")
         self.assertTrue(payload["text"].startswith("nas: Disk Media"))
 
+    def test_telegram_with_mtproxy_uses_local_sender(self):
+        channel = make_channel(
+            type="telegram", token="123:abc", chatid="42", apiid="123456", apihash="a" * 32,
+            mtproxy="https://t.me/proxy?server=proxy.example&port=443&secret=" + "dd" + "b" * 32,
+        )
+        with mock.patch("subprocess.run", return_value=mock.Mock(returncode=0, stdout="")) as run:
+            channels.deliver(channel, rendered(), self.config)
+        run.assert_called_once()
+        sent = json.loads(run.call_args.kwargs["input"])
+        self.assertEqual(sent["proxy"], {
+            "server": "proxy.example", "port": 443, "secret": "dd" + "b" * 32,
+        })
+        self.assertEqual(sent["chat_id"], "42")
+        self.assertEqual(sent["text"], "nas: Disk Media is running out of space\n\nSeverity: warning\nDisk: Media")
+        self.assertNotIn("123:abc", str(run.call_args.args))
+        self.urlopen.assert_not_called()
+
     def test_ntfy_json_publish_with_token(self):
         channels.deliver(make_channel(type="ntfy", url="https://ntfy.sh/", topic="nas", token="tk_x"), rendered("critical"), self.config)
         request, payload = self.request()

@@ -74,6 +74,15 @@
 				"type": "string",
 				"required": true
 			},
+		"mtproxy": {
+			"type": "string"
+		},
+		"apiid": {
+			"type": "string"
+		},
+		"apihash": {
+			"type": "string"
+		},
 			"topic": {
 				"type": "string",
 				"required": true

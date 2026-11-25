@@ -1,3 +1,9 @@
+openmediavault-notifier (8.1.0+mtproxy.1) stable; urgency=low
+
+  * Add optional Telegram MTProxy delivery through TDLib.
+
+ -- ddark008 <905996+ddark008@users.noreply.github.com>  Wed, 25 Nov 2026 17:10:00 +0300
+
 openmediavault-notifier (8.1.0) stable; urgency=low
 
   * Move the notifier settings to their own page under

@@ -46,7 +46,7 @@ class Notifier extends \OMV\Rpc\ServiceAbstract
 
     private const CHANNEL_PROPERTIES = [
         "uuid", "enable", "name", "type", "url", "token", "chatid", "topic",
-        "recipients", "sendername", "events", "skiprecovery",
+        "recipients", "sendername", "events", "skiprecovery", "mtproxy", "apiid", "apihash",
     ];
 
     private const LOCAL_SMTP_HOSTS = ["127.0.0.1", "localhost", "::1"];
@@ -156,7 +156,17 @@ class Notifier extends \OMV\Rpc\ServiceAbstract
         ]);
         $this->validateMethodParams($params, "rpc.notifier.setchannel");
         $db = \OMV\Config\Database::getInstance();
+        if ($params['type'] === "telegram" &&
+                $params['uuid'] !== \OMV\Environment::get("OMV_CONFIGOBJECT_NEW_UUID")) {
+            $previous = $db->get("conf.service.notifier.channel", $params['uuid']);
+            foreach (["mtproxy", "apiid", "apihash"] as $field) {
+                $params[$field] ??= $previous->get($field);
+            }
+        }
         $this->assertChannelParams($params, $db);
+        if ($params['type'] !== "telegram" || trim($params['mtproxy'] ?? "") === "") {
+            $params['mtproxy'] = $params['apiid'] = $params['apihash'] = "";
+        }
         $params['events'] = implode(",", $params['events']);
         $object = new \OMV\Config\ConfigObject("conf.service.notifier.channel");
         $object->setAssoc(array_intersect_key($params, array_flip(self::CHANNEL_PROPERTIES)));
@@ -228,6 +238,16 @@ class Notifier extends \OMV\Rpc\ServiceAbstract
                     "The URL '%s' is invalid, it must start with http:// or https://.",
                     $url
                 );
+            }
+        }
+        if ($type === "telegram" && trim($params['mtproxy'] ?? "") !== "") {
+            if (!preg_match('#^(https://t\.me/proxy|tg://proxy)\?#D', trim($params['mtproxy']))) {
+                throw new \OMV\Exception("Enter a valid Telegram MTProxy share link.");
+            }
+            $apiid = trim($params['apiid'] ?? "");
+            if (!preg_match('/^[0-9]{1,10}$/D', $apiid) || (int)$apiid < 1 || (int)$apiid >= 2147483648 ||
+                    !preg_match('/^[0-9a-f]{32}$/iD', trim($params['apihash'] ?? ""))) {
+                throw new \OMV\Exception("Telegram MTProxy requires a valid API ID and API hash.");
             }
         }
         if ($type === "email") {

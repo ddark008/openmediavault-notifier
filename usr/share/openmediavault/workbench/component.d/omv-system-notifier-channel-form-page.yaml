@@ -129,6 +129,44 @@ data:
             arg0:
               prop: type
             arg1: "telegram"
+      - type: passwordInput
+        name: mtproxy
+        label: _("MTProxy link")
+        hint: _("Optional Telegram MTProxy share link. Leave empty to use the HTTPS Bot API.")
+        autocomplete: new-password
+        value: ""
+        modifiers:
+          - type: visible
+            constraint:
+              operator: eq
+              arg0:
+                prop: type
+              arg1: "telegram"
+      - type: textInput
+        name: apiid
+        label: _("Telegram API ID")
+        hint: _("Required with MTProxy. Obtain it at my.telegram.org.")
+        value: ""
+        modifiers:
+          - type: visible
+            constraint:
+              operator: eq
+              arg0:
+                prop: type
+              arg1: "telegram"
+      - type: passwordInput
+        name: apihash
+        label: _("Telegram API hash")
+        hint: _("Required with MTProxy. Obtain it at my.telegram.org.")
+        autocomplete: new-password
+        value: ""
+        modifiers:
+          - type: visible
+            constraint:
+              operator: eq
+              arg0:
+                prop: type
+              arg1: "telegram"
       - type: textInput
         name: topic
         label: _("Topic")

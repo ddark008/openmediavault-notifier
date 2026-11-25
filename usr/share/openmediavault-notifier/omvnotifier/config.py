@@ -49,6 +49,9 @@ class Channel:
     sendername: str
     events: frozenset
     skiprecovery: bool
+    mtproxy: str = ""
+    apiid: str = ""
+    apihash: str = ""
 
     def accepts(self, event: str, recovery: bool) -> bool:
         if not self.enable:
@@ -159,6 +162,9 @@ def _channel(item) -> Channel:
         sendername=_str(item, "sendername").strip(),
         events=frozenset(_csv(_str(item, "events"))),
         skiprecovery=_bool(item, "skiprecovery"),
+        mtproxy=_str(item, "mtproxy").strip() if "mtproxy" in item else "",
+        apiid=_str(item, "apiid").strip() if "apiid" in item else "",
+        apihash=_str(item, "apihash").strip() if "apihash" in item else "",
     )
 
 

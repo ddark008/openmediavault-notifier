@@ -18,6 +18,9 @@
   'url': channel.url,
   'token': channel.token,
   'chatid': channel.chatid,
+  'mtproxy': channel.get('mtproxy', ''),
+  'apiid': channel.get('apiid', ''),
+  'apihash': channel.get('apihash', ''),
   'topic': channel.topic,
   'recipients': channel.recipients,
   'sendername': channel.sendername,
@@ -74,6 +77,13 @@ create_notifier_config_dir:
     - user: root
     - group: openmediavault-notify
     - mode: '0750'
+
+create_notifier_session_dir:
+  file.directory:
+    - name: /var/lib/openmediavault-notifier
+    - user: openmediavault-notify
+    - group: openmediavault-notify
+    - mode: '0700'
 
 configure_notifier_config:
   file.serialize:

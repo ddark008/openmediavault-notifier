@@ -74,7 +74,7 @@ Create one channel per destination.
 |---|---|
 | Discord | incoming webhook URL, optional sender name |
 | Slack | incoming webhook URL, optional sender name |
-| Telegram | bot token, chat id |
+| Telegram | bot token, chat id, optional MTProxy link and Telegram API credentials |
 | ntfy | server URL, topic, optional access token |
 | Gotify | server URL, application token |
 | Email | recipients (defaults to the notification settings addresses), optional sender name |
@@ -87,6 +87,28 @@ Common fields:
   header of emails. Defaults to the host name.
 
 After saving, apply the pending configuration, then use the test button.
+
+#### Telegram through MTProxy
+
+Telegram uses its HTTPS Bot API when the MTProxy link is empty. To use MTProxy,
+install the optional Python runtime as root on Debian 13 (amd64 or arm64):
+
+```sh
+apt install python3-venv
+python3 -m venv /opt/openmediavault-notifier-mtproxy
+/opt/openmediavault-notifier-mtproxy/bin/pip install --only-binary=:all: --require-hashes \
+  -r /usr/share/openmediavault-notifier/requirements-mtproxy.txt
+```
+
+In a Telegram channel, enter the link from Telegram (`https://t.me/proxy?…` or
+`tg://proxy?…`), an API ID and API hash from [my.telegram.org](https://my.telegram.org/apps),
+and the usual bot token and chat ID. Simple, `dd` and `ee` (Fake TLS) secrets
+are supported. Start the bot in a private chat or add it to the destination
+group or channel before testing. The bot must have permission to post there.
+
+The plugin uses TDLib to keep an encrypted bot session under
+`/var/lib/openmediavault-notifier`. If MTProxy delivery fails, the plugin
+reports the failure and keeps processing any other enabled channels.
 
 ### Settings
 
