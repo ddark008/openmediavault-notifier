@@ -161,6 +161,9 @@ def send(td, request, directory):
             chat = call("searchPublicChat", username=target[1:])
         elif int(target) > 0:
             chat = call("createPrivateChat", user_id=int(target), force=False)
+            if not chat.get("permissions", {}).get("can_send_basic_messages"):
+                # The new bot session can get a private chat before TDLib loads its rights.
+                chat = call("getChat", chat_id=chat["id"])
         elif int(target) < -10**12:
             chat = call("createSupergroupChat", supergroup_id=-int(target) - 10**12, force=False)
         else:

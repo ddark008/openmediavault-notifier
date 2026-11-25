@@ -29,12 +29,18 @@ class FakeTDLib:
                 {"@type": "updateAuthorizationState",
                  "authorization_state": {"@type": "authorizationStateReady"}},
             ],
-            "createPrivateChat": [{"@type": "chat", "id": 42}],
+            "createPrivateChat": [{"@type": "chat", "id": 42,
+                                   "permissions": {"can_send_basic_messages": False}}],
+            "getChat": [{"@type": "chat", "id": 42,
+                         "permissions": {"can_send_basic_messages": True}}],
             "sendMessage": [
                 {"@type": self.delivery_type, "old_message_id": 100},
                 {"@type": "message", "id": 100, "sending_state": {"@type": "messageSendingStatePending"}},
             ],
         }[method]
+        if method == "sendMessage" and not any(item["@type"] == "getChat" for item in self.requests):
+            updates = [{"@type": "error", "code": 400,
+                        "message": "Not enough rights to send text messages to the chat"}]
         response = next(update for update in updates if not update["@type"].startswith("update"))
         response["@extra"] = request["@extra"]
         if method == "addProxy" or request["@extra"] == "offline":
@@ -60,7 +66,7 @@ class MTProtoTest(unittest.TestCase):
         mtproto.send(td, self.request, Path("/var/lib/notifier-test"))
         self.assertEqual([request["@type"] for request in td.requests], [
             "setNetworkType", "addProxy", "setTdlibParameters", "setNetworkType",
-            "checkAuthenticationBotToken", "createPrivateChat", "sendMessage",
+            "checkAuthenticationBotToken", "createPrivateChat", "getChat", "sendMessage",
         ])
         self.assertTrue(td.requests[1]["enable"])
         self.assertEqual(td.requests[-1]["chat_id"], 42)

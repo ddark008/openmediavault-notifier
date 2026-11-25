@@ -1,3 +1,9 @@
+openmediavault-notifier (8.1.0+mtproxy.2) stable; urgency=low
+
+  * Refresh private chat permissions before the first MTProxy message.
+
+ -- ddark008 <905996+ddark008@users.noreply.github.com>  Wed, 25 Nov 2026 17:52:00 +0300
+
 openmediavault-notifier (8.1.0+mtproxy.1) stable; urgency=low
 
   * Add optional Telegram MTProxy delivery through TDLib.
